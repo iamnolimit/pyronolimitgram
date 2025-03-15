@@ -19,13 +19,14 @@
 import io
 import logging
 import re
+import asyncio
 from datetime import datetime
 from functools import partial
 from typing import Union, Optional, Callable
 
 import pyrogram
 from pyrogram import raw, enums, types, utils
-from pyrogram.errors import MessageIdsEmpty, PeerIdInvalid
+from pyrogram.errors import MessageIdsEmpty, PeerIdInvalid, FloodWait
 from pyrogram.parser import utils as parser_utils, Parser
 from ..object import Object
 from ..update import Update
@@ -1083,13 +1084,12 @@ class Message(Object, Update):
                         message_ids=message.id,
                         replies=0
                     )
+                    parsed_message.service = enums.MessageServiceType.PINNED_MESSAGE
                 except MessageIdsEmpty:
-                    parsed_message.pinned_message = types.Message(
-                        id=message.reply_to.reply_to_msg_id,
-                        empty=True,
-                        client=client
-                    )
-                parsed_message.service = enums.MessageServiceType.PINNED_MESSAGE
+                    pass
+                except FloodWait as e:
+                    asyncio.sleep(e.x)
+                    pass
 
             if isinstance(action, raw.types.MessageActionGameScore):
                 parsed_message.game_high_score = types.GameHighScore._parse_action(client, message, users)
@@ -1104,6 +1104,9 @@ class Message(Object, Update):
 
                         parsed_message.service = enums.MessageServiceType.GAME_HIGH_SCORE
                     except MessageIdsEmpty:
+                        pass
+                    except FloodWait as e:
+                        asyncio.sleep(e.x)
                         pass
 
         if isinstance(message, raw.types.Message):
@@ -1444,9 +1447,11 @@ class Message(Object, Update):
                             message_ids=message.id,
                             replies=replies - 1
                         )
-
                     parsed_message.reply_to_message = reply_to_message
                 except MessageIdsEmpty:
+                    pass
+                except FloodWait as e:
+                    asyncio.sleep(e.x)
                     pass
 
         if business_connection_id:
