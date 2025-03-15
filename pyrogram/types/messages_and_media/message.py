@@ -1087,8 +1087,7 @@ class Message(Object, Update):
                     parsed_message.service = enums.MessageServiceType.PINNED_MESSAGE
                 except MessageIdsEmpty:
                     pass
-                except FloodWait as e:
-                    asyncio.sleep(e.x)
+                except FloodWait:
                     pass
 
             if isinstance(action, raw.types.MessageActionGameScore):
@@ -1105,8 +1104,7 @@ class Message(Object, Update):
                         parsed_message.service = enums.MessageServiceType.GAME_HIGH_SCORE
                     except MessageIdsEmpty:
                         pass
-                    except FloodWait as e:
-                        asyncio.sleep(e.x)
+                    except FloodWait:
                         pass
 
         if isinstance(message, raw.types.Message):
@@ -1450,8 +1448,7 @@ class Message(Object, Update):
                     parsed_message.reply_to_message = reply_to_message
                 except MessageIdsEmpty:
                     pass
-                except FloodWait as e:
-                    asyncio.sleep(e.x)
+                except FloodWait:
                     pass
 
         if business_connection_id:
