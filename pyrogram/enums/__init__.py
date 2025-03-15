@@ -34,6 +34,8 @@ from .user_status import UserStatus
 from .client_platform import ClientPlatform
 from .accent_color import AccentColor
 from .profile_color import ProfileColor
+from .stories_privacy_rules import StoriesPrivacyRules
+from .story_privacy import StoryPrivacy
 
 __all__ = [
     'ChatAction', 
@@ -54,4 +56,6 @@ __all__ = [
     'ClientPlatform',
     'AccentColor',
     'ProfileColor',
+    'StoryPrivacy',  
+    'StoriesPrivacyRules'
 ]
