@@ -394,9 +394,10 @@ class Session:
         query: TLObject,
         retries: int = MAX_RETRIES,
         timeout: float = WAIT_TIMEOUT,
-        sleep_threshold: float = SLEEP_THRESHOLD
+        sleep_threshold: float = SLEEP_THRESHOLD  # Pastikan ini angka, bukan tuple
     ):
-        sleep_threshold = max(sleep_threshold, self.client.sleep_threshold)
+        # Pastikan sleep_threshold adalah angka
+        sleep_threshold = float(max(sleep_threshold, self.client.sleep_threshold))
 
         try:
             await asyncio.wait_for(self.is_connected.wait(), self.WAIT_TIMEOUT)
@@ -416,7 +417,7 @@ class Session:
             except (FloodWait, FloodPremiumWait) as e:
                 amount = e.value
 
-                if amount > sleep_threshold >= 0:
+                if amount > sleep_threshold >= 0:  # Sekarang sleep_threshold sudah numerik
                     raise
 
                 log.warning(f'[{self.client.name}] Waiting for {amount} seconds before continuing '
@@ -436,11 +437,13 @@ class Session:
                     )
                 ):
                     raise e from None
-                # TODO: fix conditions here
+
                 (log.warning if retries < 2 else log.info)(
-                    f'[{Session.MAX_RETRIES - retries + 1}] Retrying "{query_name}" due to {str(e) or repr(e)}')
+                    f'[{Session.MAX_RETRIES - retries + 1}] Retrying "{query_name}" due to {str(e) or repr(e)}'
+                )
 
                 await asyncio.sleep(0.5)
 
                 return await self.invoke(query, retries - 1, timeout)
         raise TimeoutError("Exceeded maximum number of retries")
+
